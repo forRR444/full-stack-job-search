@@ -1,10 +1,13 @@
-// src/app/search-client.tsx（クライアントコンポーネント）
+// （クライアントコンポーネント）
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
 import type { Category, Job } from "@/types/job";
 import { salarySteps, categories as CATEGORIES } from "@/types/jobs";
-
+import { CategoryChips } from "@/components/CategoryChips";
+import { SalarySelect } from "@/components/SalarySelect";
+import { Pagination } from "@/components/Pagination";
+import { JobList } from "@/components/JobList";
 export default function ClientSearch({ jobs }: { jobs: Job[] }) {
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [minSalary, setMinSalary] = useState<number>(300);
@@ -34,36 +37,20 @@ export default function ClientSearch({ jobs }: { jobs: Job[] }) {
         <p className="mb-2 text-sm font-semibold text-slate-700">
           求人カテゴリ
         </p>
-        <ul className="space-y-2">
-          {CATEGORIES.map((c) => (
-            <li key={c} className="flex items-center gap-2">
-              <input
-                id={`cat-${c}`}
-                type="checkbox"
-                className="h-4 w-4 rounded border-slate-300"
-                checked={selectedCategories.includes(c)}
-                onChange={() => toggleCategory(c)}
-              />
-              <label htmlFor={`cat-${c}`} className="text-sm">
-                {c}
-              </label>
-            </li>
-          ))}
-        </ul>
-
+        {/* カテゴリフィルター */}
+        <CategoryChips
+          all={CATEGORIES}
+          value={selectedCategories}
+          onChange={setSelectedCategories}
+        />
+        {/* 年収フィルター*/}
         <div className="mt-6">
           <p className="mb-2 text-sm font-semibold text-slate-700">年収</p>
-          <select
-            className="w-full rounded-md border border-slate-300 bg-white p-2 text-sm"
+          <SalarySelect
+            options={salarySteps}
             value={minSalary}
-            onChange={(e) => setMinSalary(Number(e.target.value))}
-          >
-            {salarySteps.map((v) => (
-              <option key={v} value={v}>
-                {v === 1000 ? "1000万円以上" : `${v}万円以上`}
-              </option>
-            ))}
-          </select>
+            onChange={setMinSalary}
+          />
         </div>
       </aside>
 
@@ -76,55 +63,11 @@ export default function ClientSearch({ jobs }: { jobs: Job[] }) {
           </p>
         </div>
 
-        <section className="grid gap-4">
-          {paged.map((job) => (
-            <article
-              key={job.id}
-              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-            >
-              <h3 className="text-base md:text-lg font-semibold">
-                {job.title}
-              </h3>
-              <div className="mt-2 text-sm text-slate-500">
-                <p>カテゴリ：{job.category}</p>
-                <p>年収：{job.salary}万円</p>
-              </div>
-            </article>
-          ))}
-          {jobs.length === 0 && (
-            <p className="text-sm text-slate-500">
-              まだ求人が登録されていません。
-            </p>
-          )}
-        </section>
+        {/* 求人リスト表示 */}
+        <JobList jobs={paged} />
 
         {/* ページネーション */}
-        <div className="mt-6 flex items-center justify-center gap-3 text-base select-none">
-          <button
-            className="disabled:opacity-30"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            ◀
-          </button>
-          {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={p === page ? "font-bold" : ""}
-              aria-current={p === page ? "page" : undefined}
-            >
-              {p}
-            </button>
-          ))}
-          <button
-            className="disabled:opacity-30"
-            disabled={page === pageCount}
-            onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-          >
-            ▶
-          </button>
-        </div>
+        <Pagination page={page} pageCount={pageCount} onPageChange={setPage} />
       </main>
     </div>
   );

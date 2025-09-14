@@ -1,40 +1,32 @@
-"use client";
-import { useEffect, useState } from "react";
+// src/app/page.tsx（サーバーコンポーネント：SSR）
+import type { Category, Job } from "@/types/job";
+import ClientSearch from "./search-client"; // クライアント用の子
 
-export default function Home() {
-  const [jobs, setJobs] = useState<any[]>([]);
+export const dynamic = "force-dynamic"; // 毎回SSRしたい場合
+// export const revalidate = 0; // こちらでもOK
 
-  useEffect(() => {
-    fetch("/api/jobs")
-      .then((res) => res.json())
-      .then((data) => setJobs(data));
-  }, []);
+export default async function Page() {
+  const res = await fetch(`${process.env.SUPABASE_URL}/rest/v1/job?select=*`, {
+    headers: {
+      apikey: process.env.SUPABASE_ANON_KEY as string,
+      Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY as string}`,
+    },
+    cache: "no-store", // 常に最新をSSR
+  });
 
-  async function addJob() {
-    await fetch("/api/jobs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: "エンジニア",
-        category: "IT",
-        salary: 500,
-      }),
-    });
-    const updated = await fetch("/api/jobs").then((res) => res.json());
-    setJobs(updated);
+  if (!res.ok) {
+    // 簡易エラーハンドリング（SSRでもHTML返る）
+    return <div className="p-6">読み込みに失敗しました。</div>;
   }
 
-  return (
-    <div>
-      <h1>求人一覧</h1>
-      <button onClick={addJob}>求人を追加</button>
-      <ul>
-        {jobs.map((job) => (
-          <li key={job.id}>
-            {job.title} - {job.category} - {job.salary}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  const raw = (await res.json()) as any[];
+  const jobs: Job[] = raw.map((d) => ({
+    id: d.id,
+    title: d.title,
+    category: d.category as Category,
+    salary: Number(d.salary),
+  }));
+
+  // ここで初期HTMLを生成し、jobs を子へ渡す
+  return <ClientSearch jobs={jobs} />;
 }

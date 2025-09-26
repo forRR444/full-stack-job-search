@@ -13,7 +13,11 @@ export function CategoryChips({ all, value, onChange }: Props) {
   //トグルの選択・解除
   const toggle = (c: Category) => {
     const set = new Set(value);
-    set.has(c) ? set.delete(c) : set.add(c);
+    if (set.has(c)) {
+      set.delete(c);
+    } else {
+      set.add(c);
+    }
     onChange(Array.from(set));
   };
 

@@ -15,11 +15,6 @@ export default function ClientSearch({ jobs }: { jobs: Job[] }) {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  //職種の選択・解除
-  const toggleCategory = (c: Category) =>
-    setSelectedCategories((prev) =>
-      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
-    );
   //絞り込み
   const filtered = useMemo(() => {
     const byCat = selectedCategories.length

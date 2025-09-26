@@ -12,7 +12,7 @@ export type Category =
   | "医療・介護";
 
 export type Job = {
-  id: number;
+  id: string;
   title: string;
   category: Category;
   salary: number;

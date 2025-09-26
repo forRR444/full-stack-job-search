@@ -18,11 +18,19 @@ export default async function Page() {
     return <div className="p-6">読み込みに失敗しました。</div>;
   }
 
-  const raw = (await res.json()) as any[];
+  type ApiJob = {
+    id: string;
+    title: string;
+    category: Category;
+    salary: number | string;
+  };
+
+  const raw = (await res.json()) as ApiJob[];
+
   const jobs: Job[] = raw.map((d) => ({
     id: d.id,
     title: d.title,
-    category: d.category as Category,
+    category: d.category,
     salary: Number(d.salary),
   }));
 

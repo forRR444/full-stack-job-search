@@ -55,7 +55,7 @@ export default function PostPage() {
         } catch {}
         alert(msg);
       }
-    } catch (err) {
+    } catch {
       // ネットワークエラーなど
       alert("ネットワークエラーが発生しました");
     } finally {

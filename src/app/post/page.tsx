@@ -10,9 +10,10 @@ export default function PostPage() {
   const [category, setCategory] = useState<"" | Category>("");
   const [salary, setSalary] = useState<string>("");
   const [title, setTitle] = useState("");
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState(false); //投稿中かどうか
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    //すでに送信中なら二重送信を防ぐ
     e.preventDefault();
     if (pending) return;
     const form = e.currentTarget;
@@ -21,6 +22,7 @@ export default function PostPage() {
       return;
     }
 
+    //年収の数値チェック
     const salaryNum = Number(salary);
     if (!Number.isFinite(salaryNum) || salaryNum < 1) {
       alert("年収は1以上の整数で入力してください");
@@ -28,6 +30,7 @@ export default function PostPage() {
     }
 
     setPending(true);
+    // API経由で投稿
     try {
       const res = await fetch("/api/jobs", {
         method: "POST",
@@ -40,9 +43,11 @@ export default function PostPage() {
       });
 
       if (res.ok) {
+        // 投稿成功
         alert("投稿が完了しました");
         router.push("/");
       } else {
+        // 投稿失敗
         let msg = "投稿に失敗しました";
         try {
           const data = await res.json();
@@ -51,6 +56,7 @@ export default function PostPage() {
         alert(msg);
       }
     } catch (err) {
+      // ネットワークエラーなど
       alert("ネットワークエラーが発生しました");
     } finally {
       setPending(false);

@@ -1,8 +1,9 @@
 "use client";
 
+//年収選択コンポーネント
 type Props = {
-  options: number[];
-  value: number;
+  options: number[]; //選択肢
+  value: number; //選択中の年収
   onChange: (next: number) => void;
 };
 

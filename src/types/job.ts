@@ -15,5 +15,5 @@ export type Job = {
   id: number;
   title: string;
   category: Category;
-  salary: number; // salary: 万円
+  salary: number;
 };

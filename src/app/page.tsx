@@ -1,9 +1,8 @@
-// src/app/page.tsx（サーバーコンポーネント：SSR）
+// サーバーコンポーネント：SSR
 import type { Category, Job } from "@/types/job";
 import ClientSearch from "./search-client"; // クライアント用の子
 
-export const dynamic = "force-dynamic"; // 毎回SSRしたい場合
-// export const revalidate = 0; // こちらでもOK
+export const dynamic = "force-dynamic"; // 毎回SSR
 
 export default async function Page() {
   const res = await fetch(`${process.env.SUPABASE_URL}/rest/v1/job?select=*`, {

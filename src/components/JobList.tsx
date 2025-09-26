@@ -1,4 +1,5 @@
 import type { Job } from "@/types/job";
+//求人一覧コンポーネント
 export function JobList({ jobs }: { jobs: Job[] }) {
   if (jobs.length === 0)
     return <p className="text-sm text-slate-500">該当する求人がありません。</p>;

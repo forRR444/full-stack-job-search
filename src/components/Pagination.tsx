@@ -1,8 +1,8 @@
 "use client";
 
 type Props = {
-  page: number;
-  pageCount: number;
+  page: number; //現在のページ番号
+  pageCount: number; //総ページ数
   onPageChange: (next: number) => void;
 };
 
@@ -11,7 +11,7 @@ export function Pagination({ page, pageCount, onPageChange }: Props) {
     <div className="mt-6 flex items-center justify-center gap-3 text-base select-none">
       <button
         className="disabled:opacity-30"
-        disabled={page === 1}
+        disabled={page === 1} //1ページ目なら無効
         onClick={() => onPageChange(Math.max(1, page - 1))}
       >
         ◀
@@ -28,7 +28,7 @@ export function Pagination({ page, pageCount, onPageChange }: Props) {
       ))}
       <button
         className="disabled:opacity-30"
-        disabled={page === pageCount}
+        disabled={page === pageCount} //最終ページなら無効
         onClick={() => onPageChange(Math.min(pageCount, page + 1))}
       >
         ▶

@@ -2,13 +2,15 @@
 
 import type { Category } from "@/types/job";
 
+//カテゴリ選択コンポーネント
 type Props = {
-  all: Category[];
-  value: Category[];
+  all: Category[]; //全カテゴリ
+  value: Category[]; //選択中のカテゴリ
   onChange: (next: Category[]) => void;
 };
 
 export function CategoryChips({ all, value, onChange }: Props) {
+  //トグルの選択・解除
   const toggle = (c: Category) => {
     const set = new Set(value);
     set.has(c) ? set.delete(c) : set.add(c);

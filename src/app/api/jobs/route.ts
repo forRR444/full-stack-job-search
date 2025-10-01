@@ -1,39 +1,34 @@
-//一覧取得
-export async function GET() {
-  //Supabase REST API を呼び出しjob テーブルの全行を取得
-  const res = await fetch(`${process.env.SUPABASE_URL}/rest/v1/job?select=*`, {
-    headers: {
-      apikey: process.env.SUPABASE_ANON_KEY!,
-      Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY!}`,
-    },
-  });
-  //帰ってきたJSONをそのままAPIのレスポンス
-  const data = await res.json();
-  return Response.json(data);
+import { prisma } from "@/prisma";
+export const runtime = "nodejs";
+
+// BigInt を文字列に変換して JSON 化
+function serialize(obj: any) {
+  return JSON.parse(
+    JSON.stringify(obj, (_, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    )
+  );
 }
 
-//新規投稿
+// 一覧取得(最新順に一覧を取得して返す)
+export async function GET() {
+  const jobs = await prisma.job.findMany({
+    orderBy: { created_at: "desc" },
+  });
+  return Response.json(serialize(jobs));
+}
+
+// 新規投稿
 export async function POST(req: Request) {
-  //クライアントから送られたリクエストを受け取る
   const body = await req.json();
-  const res = await fetch(`${process.env.SUPABASE_URL}/rest/v1/job`, {
-    method: "POST",
-    headers: {
-      apikey: process.env.SUPABASE_ANON_KEY!,
-      Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY!}`,
-      "Content-Type": "application/json",
-      Prefer: "return=representation", //追加後のレコードを返す
+
+  const created = await prisma.job.create({
+    data: {
+      title: body.title,
+      category: body.category,
+      salary: String(body.salary),
     },
-    body: JSON.stringify(body),
   });
 
-  //SupabaseのレスポンスをJSON化
-  const data = await res.json();
-
-  if (!res.ok) {
-    console.error("Supabase insert error:", data); //失敗
-    return new Response(JSON.stringify(data), { status: 500 });
-  }
-
-  return Response.json(data); //成功
+  return Response.json(serialize(created));
 }

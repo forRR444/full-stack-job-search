@@ -1,5 +1,5 @@
 // サーバーコンポーネント：SSR
-import type { Category, Job } from "@/types/job";
+import type { Job } from "@/types/job";
 import ClientSearch from "./search-client"; // クライアント用の子
 import { prisma } from "@/prisma";
 

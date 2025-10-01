@@ -2,12 +2,12 @@ import { prisma } from "@/prisma";
 export const runtime = "nodejs";
 
 // BigInt を文字列に変換して JSON 化
-function serialize(obj: any) {
+function serialize<T>(obj: T): T {
   return JSON.parse(
     JSON.stringify(obj, (_, value) =>
       typeof value === "bigint" ? value.toString() : value
     )
-  );
+  ) as T;
 }
 
 // 一覧取得(最新順に一覧を取得して返す)

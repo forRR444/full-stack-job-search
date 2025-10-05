@@ -5,7 +5,6 @@ import type { QueryResult, QueryResultRow } from "pg";
 // グローバルスコープに Pool をキャッシュして、
 // 開発中のホットリロード時にもコネクションを再作成しないようにする。
 declare global {
-  // eslint-disable-next-line no-var
   var __pool__: Pool | undefined;
 }
 
@@ -29,6 +28,7 @@ export async function query<T extends QueryResultRow = QueryResultRow>(
   params?: ReadonlyArray<unknown>
 ): Promise<QueryResult<T>> {
   // pg の型は params に any[] を要求するので、この行だけ any を許可
-  const res = await pool.query<T>(text, params as any[]);
+  // @ts-expect-error pg typings expect any[] for params; readonly unknown[] is safe here.
+  const res = await pool.query<T>(text, params);
   return res;
 }

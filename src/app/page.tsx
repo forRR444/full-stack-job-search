@@ -1,17 +1,36 @@
-// サーバーコンポーネント：SSR
+import { listJobs } from "@/lib/jobs";
 import type { Job } from "@/types/job";
-import ClientSearch from "./search-client"; // クライアント用の子
-import { prisma } from "@/prisma";
 
-export const dynamic = "force-dynamic"; // 毎回SSR
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default async function Page() {
-  // Prisma 経由で Supabase(Postgres) に直接アクセス
-  const jobs = await prisma.job.findMany({
-    orderBy: { created_at: "desc" },
-  });
+export default async function HomePage({
+  // ★ searchParams は Promise として受け取る
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
+  // ★ まず await してから使う
+  const sp = await searchParams;
+  const page = Number(sp.page ?? "1");
+  const limit = 20;
+  const offset = (page - 1) * limit;
 
-  // jobs を子へ渡して描画
-  return <ClientSearch jobs={jobs as unknown as Job[]} />;
+  const jobs: Job[] = await listJobs({ q: sp.q, limit, offset });
+
+  return (
+    <div className="mx-auto max-w-3xl p-6">
+      <h1 className="text-2xl font-bold mb-4">求人一覧</h1>
+      <ul className="space-y-3">
+        {jobs.map((j) => (
+          <li key={j.id} className="rounded border p-4">
+            <div className="font-semibold">{j.title}</div>
+            <div className="text-sm text-gray-600">
+              {j.category} / 年収: {j.salary}万円
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }

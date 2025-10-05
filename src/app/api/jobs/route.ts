@@ -1,34 +1,24 @@
-import { prisma } from "@/prisma";
+import { NextResponse } from "next/server";
+import { listJobs, createJob } from "@/lib/jobs";
+
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// BigInt を文字列に変換して JSON 化
-function serialize<T>(obj: T): T {
-  return JSON.parse(
-    JSON.stringify(obj, (_, value) =>
-      typeof value === "bigint" ? value.toString() : value
-    )
-  ) as T;
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const q = searchParams.get("q") ?? undefined;
+  const limit = Number(searchParams.get("limit") ?? "20");
+  const offset = Number(searchParams.get("offset") ?? "0");
+  const jobs = await listJobs({ q, limit, offset });
+  return NextResponse.json(jobs);
 }
 
-// 一覧取得(最新順に一覧を取得して返す)
-export async function GET() {
-  const jobs = await prisma.job.findMany({
-    orderBy: { created_at: "desc" },
+export async function POST(request: Request) {
+  const body = await request.json();
+  const job = await createJob({
+    title: body.title,
+    category: body.category, // "エンジニア" 等
+    salary: Number(body.salary),
   });
-  return Response.json(serialize(jobs));
-}
-
-// 新規投稿
-export async function POST(req: Request) {
-  const body = await req.json();
-
-  const created = await prisma.job.create({
-    data: {
-      title: body.title,
-      category: body.category,
-      salary: String(body.salary),
-    },
-  });
-
-  return Response.json(serialize(created));
+  return NextResponse.json(job, { status: 201 });
 }

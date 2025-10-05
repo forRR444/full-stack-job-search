@@ -2,7 +2,9 @@ import "server-only";
 import { query } from "@/lib/db";
 import type { Job } from "@/types/job";
 
+//求人一覧を取得
 export async function listJobs(opts?: {
+  //検索クエリ・ページング情報
   q?: string;
   limit?: number;
   offset?: number;
@@ -10,19 +12,7 @@ export async function listJobs(opts?: {
   const limit = opts?.limit ?? 20;
   const offset = opts?.offset ?? 0;
 
-  if (opts?.q) {
-    const qv = `%${opts.q}%`;
-    const sql = `
-      SELECT id, title, category, salary
-      FROM jobs
-      WHERE title ILIKE $1 OR category ILIKE $1
-      ORDER BY created_at DESC
-      LIMIT $2 OFFSET $3
-    `;
-    const { rows } = await query<Job>(sql, [qv, limit, offset]);
-    return rows;
-  }
-
+  //全件取得
   const { rows } = await query<Job>(
     `SELECT id, title, category, salary
      FROM jobs
@@ -32,7 +22,7 @@ export async function listJobs(opts?: {
   );
   return rows;
 }
-
+//求人を新規登録
 export async function createJob(input: {
   title: string;
   category: Job["category"];
@@ -48,5 +38,5 @@ export async function createJob(input: {
     input.category,
     input.salary,
   ]);
-  return rows[0];
+  return rows[0]; // 登録した1件を返す
 }

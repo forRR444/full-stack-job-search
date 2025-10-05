@@ -25,9 +25,9 @@ if (process.env.NODE_ENV !== "production") {
 //SQLクエリを実行する関数
 export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
-  params?: any[]
+  params?: ReadonlyArray<unknown>
 ): Promise<QueryResult<T>> {
   //SQLクエリを実行し、結果を返す
-  const res = await pool.query(text, params);
+  const res = await pool.query(text, params as any[]);
   return res as QueryResult<T>;
 }
